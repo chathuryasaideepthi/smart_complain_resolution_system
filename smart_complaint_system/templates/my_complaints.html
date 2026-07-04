@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}My Complaints | Smart Complaint{% endblock %}
+{% block page_title %}My Complaints{% endblock %}
+{% block page_description %}View complaint history and status updates.{% endblock %}
+{% block content %}
+<div class="card shadow-sm border-0 rounded-4 p-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" id="complaintsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Department</th>
+                    <th>Submitted</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for complaint in complaints %}
+                    <tr>
+                        <td>{{ complaint.id }}</td>
+                        <td>{{ complaint.title }}</td>
+                        <td>{{ complaint.status }}</td>
+                        <td>{{ complaint.priority }}</td>
+                        <td>{{ complaint.department.name if complaint.department }}</td>
+                        <td>{{ complaint.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td><a href="{{ url_for('complaints.complaint_detail', complaint_id=complaint.id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+    new DataTable('#complaintsTable');
+</script>
+{% endblock %}

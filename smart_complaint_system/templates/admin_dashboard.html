@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard | Smart Complaint{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block page_description %}Enterprise performance metrics for administrators.{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4 p-4">
+            <h6>Total Users</h6>
+            <h2>{{ total_users }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4 p-4">
+            <h6>Total Officers</h6>
+            <h2>{{ total_officers }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4 p-4">
+            <h6>Total Departments</h6>
+            <h2>{{ total_departments }}</h2>
+        </div>
+    </div>
+</div>
+<div class="row g-4 mt-3">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4 p-4">
+            <h6>Total Complaints</h6>
+            <h2>{{ total_complaints }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4 p-4">
+            <h6>Pending</h6>
+            <h2>{{ pending }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4 p-4">
+            <h6>Resolved</h6>
+            <h2>{{ resolved }}</h2>
+        </div>
+    </div>
+</div>
+<div class="card shadow-sm border-0 rounded-4 p-4 mt-4" id="officer-stats">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5>Officer Work Summary</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" id="officerTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Assigned</th>
+                    <th>Completed</th>
+                    <th>Pending</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in officer_stats %}
+                    <tr>
+                        <td>{{ item.officer.name }}</td>
+                        <td>{{ item.officer.department.name if item.officer.department else 'None' }}</td>
+                        <td>{{ item.assigned }}</td>
+                        <td>{{ item.completed }}</td>
+                        <td>{{ item.pending }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="card shadow-sm border-0 rounded-4 p-4 mt-4" id="officers">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5>Users</h5>
+        <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#addUserForm">Add User</button>
+    </div>
+    <div class="collapse" id="addUserForm">
+        <div class="card card-body mb-4">
+            <form method="POST" action="{{ url_for('admin.admin_dashboard') }}">
+                <input type="hidden" name="form_type" value="user">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Full Name</label>
+                        <input class="form-control" name="full_name" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Role</label>
+                        <select class="form-select" name="role_id" required>
+                            <option value="">Select role</option>
+                            {% for role in roles %}
+                                <option value="{{ role.id }}">{{ role.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Department (optional)</label>
+                        <select class="form-select" name="department_id">
+                            <option value="">None</option>
+                            {% for department in departments %}
+                                <option value="{{ department.id }}">{{ department.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button class="btn btn-success w-100" type="submit">Create User</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" id="userTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Department</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.role.name }}</td>
+                        <td>{{ user.department.name if user.department else 'None' }}</td>
+                        <td>
+                            {% if user.role.name != 'Admin' %}
+                                <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}" class="d-inline-block" onsubmit="return confirm('Delete this user?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            {% else %}
+                                <span class="text-muted small">Protected</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="card shadow-sm border-0 rounded-4 p-4 mt-4" id="departments">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5>Departments</h5>
+        <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#addDepartmentForm">Add Department</button>
+    </div>
+    <div class="collapse" id="addDepartmentForm">
+        <div class="card card-body mb-4">
+            <form method="POST" action="{{ url_for('admin.admin_dashboard') }}">
+                <input type="hidden" name="form_type" value="department">
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label class="form-label">Department Name</label>
+                        <input class="form-control" name="name" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label">Description</label>
+                        <input class="form-control" name="description">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-success w-100" type="submit">Create</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" id="departmentTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for department in departments %}
+                    <tr>
+                        <td>{{ department.name }}</td>
+                        <td>{{ department.description }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('admin.delete_department', department_id=department.id) }}" class="d-inline-block" onsubmit="return confirm('Delete this department?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+    new DataTable('#officerTable');
+    new DataTable('#userTable');
+    new DataTable('#departmentTable');
+</script>
+{% endblock %}

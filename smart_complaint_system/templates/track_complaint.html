@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Track Complaint | Smart Complaint{% endblock %}
+{% block page_title %}Track Complaint{% endblock %}
+{% block page_description %}See the complaint progress timeline.{% endblock %}
+{% block content %}
+<div class="card shadow-sm border-0 rounded-4 p-4">
+    <div class="timeline">
+        {% for event in timeline %}
+            <div class="timeline-item">
+                <div class="timeline-icon bg-primary text-white"><i class="bi bi-check2-circle"></i></div>
+                <div class="timeline-content">
+                    <h6 class="mb-1">{{ event.status }}</h6>
+                    <small class="text-muted">{{ event.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                    <p class="mb-0">{{ event.remarks }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

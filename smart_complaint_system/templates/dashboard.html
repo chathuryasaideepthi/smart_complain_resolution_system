@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | Smart Complaint{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_description %}Quick overview of complaints, departments and recent activity.{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card shadow-sm border-0 rounded-4 p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                    <span class="text-muted">Total Complaints</span>
+                    <h3 class="mt-2">{{ total_complaints }}</h3>
+                </div>
+                <i class="bi bi-clipboard-check fs-2 text-primary"></i>
+            </div>
+            <div class="progress rounded-pill" style="height: 8px;"><div class="progress-bar bg-primary" style="width: 100%"></div></div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card shadow-sm border-0 rounded-4 p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                    <span class="text-muted">Pending</span>
+                    <h3 class="mt-2">{{ pending }}</h3>
+                </div>
+                <i class="bi bi-hourglass-split fs-2 text-warning"></i>
+            </div>
+            <div class="progress rounded-pill" style="height: 8px;"><div class="progress-bar bg-warning" style="width: 60%"></div></div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card shadow-sm border-0 rounded-4 p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                    <span class="text-muted">Resolved</span>
+                    <h3 class="mt-2">{{ resolved }}</h3>
+                </div>
+                <i class="bi bi-check-circle fs-2 text-success"></i>
+            </div>
+            <div class="progress rounded-pill" style="height: 8px;"><div class="progress-bar bg-success" style="width: 80%"></div></div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card shadow-sm border-0 rounded-4 p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                    <span class="text-muted">Departments</span>
+                    <h3 class="mt-2">{{ total_departments }}</h3>
+                </div>
+                <i class="bi bi-building fs-2 text-info"></i>
+            </div>
+            <div class="progress rounded-pill" style="height: 8px;"><div class="progress-bar bg-info" style="width: 75%"></div></div>
+        </div>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-0 rounded-4 p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Department Distribution</h5>
+            </div>
+            <canvas id="departmentChart" height="220"></canvas>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card shadow-sm border-0 rounded-4 p-4 mb-4">
+            <h5 class="mb-3">Recent Complaints</h5>
+            <ul class="list-group list-group-flush">
+                {% for complaint in recent_complaints %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="fw-bold">{{ complaint.title }}</div>
+                            <small class="text-muted">{{ complaint.status }} • {{ complaint.department.name if complaint.department }}</small>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">#{{ complaint.id }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+const departmentData = {
+    labels: {{ chart_labels|tojson }},
+    datasets: [{
+        label: 'Complaints',
+        data: {{ chart_values|tojson }},
+        backgroundColor: ['#0d6efd', '#6610f2', '#6f42c1', '#198754', '#fd7e14', '#dc3545'],
+    }]
+};
+const config = { type: 'doughnut', data: departmentData };
+new Chart(document.getElementById('departmentChart'), config);
+</script>
+{% endblock %}

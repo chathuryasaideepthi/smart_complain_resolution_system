@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Reports | Smart Complaint{% endblock %}
+{% block page_title %}Reports{% endblock %}
+{% block page_description %}Download complaint reports in CSV, Excel or PDF.{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4 p-4 text-center">
+            <h5>CSV Report</h5>
+            <p class="text-muted">Export a complete complaint dataset as CSV.</p>
+            <a class="btn btn-outline-primary" href="{{ url_for('reports.export_csv') }}">Download CSV</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4 p-4 text-center">
+            <h5>Excel Report</h5>
+            <p class="text-muted">Download complaint data in Excel format.</p>
+            <a class="btn btn-outline-success" href="{{ url_for('reports.export_excel') }}">Download Excel</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4 p-4 text-center">
+            <h5>PDF Report</h5>
+            <p class="text-muted">Generate a printable PDF summary.</p>
+            <a class="btn btn-outline-dark" href="{{ url_for('reports.export_pdf') }}">Download PDF</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

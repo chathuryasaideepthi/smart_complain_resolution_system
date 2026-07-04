@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Complaint Detail | Smart Complaint{% endblock %}
+{% block page_title %}Complaint Detail{% endblock %}
+{% block page_description %}Detailed complaint information and status history.{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 rounded-4 p-4 mb-4">
+            <h5>{{ complaint.title }}</h5>
+            <p class="text-muted">{{ complaint.description }}</p>
+            <div class="row">
+                <div class="col-md-4"><strong>Status:</strong> {{ complaint.status }}</div>
+                <div class="col-md-4"><strong>Priority:</strong> {{ complaint.priority }}</div>
+                <div class="col-md-4"><strong>Department:</strong> {{ complaint.department.name if complaint.department }}</div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6"><strong>Sentiment:</strong> {{ complaint.sentiment }}</div>
+                <div class="col-md-6"><strong>ETA:</strong> {{ complaint.resolution_eta }}</div>
+            </div>
+            <div class="mt-4">
+                <h6>AI Summary</h6>
+                <p>{{ complaint.summary }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 rounded-4 p-4 mb-4">
+            <h6>Attachments</h6>
+            <ul class="list-group list-group-flush">
+                {% if complaint.attachment_image %}
+                    <li class="list-group-item">Image: <a href="{{ url_for('static', filename='uploads/' ~ complaint.attachment_image) }}" target="_blank">View</a></li>
+                {% endif %}
+                {% if complaint.attachment_video %}
+                    <li class="list-group-item">Video: <a href="{{ url_for('static', filename='uploads/' ~ complaint.attachment_video) }}" target="_blank">View</a></li>
+                {% endif %}
+                {% if complaint.attachment_document %}
+                    <li class="list-group-item">Document: <a href="{{ url_for('static', filename='uploads/' ~ complaint.attachment_document) }}" target="_blank">View</a></li>
+                {% endif %}
+            </ul>
+        </div>
+        <div class="card shadow-sm border-0 rounded-4 p-4">
+            <h6>Tracking</h6>
+            <a href="{{ url_for('complaints.track_complaint', complaint_id=complaint.id) }}" class="btn btn-outline-primary w-100">View Timeline</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

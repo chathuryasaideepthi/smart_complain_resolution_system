@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Raise Complaint | Smart Complaint{% endblock %}
+{% block page_title %}Raise Complaint{% endblock %}
+{% block page_description %}Submit a new complaint and upload evidence files.{% endblock %}
+{% block content %}
+<div class="card shadow-sm border-0 rounded-4 p-4">
+    <form method="POST" enctype="multipart/form-data">
+        <div class="row gy-3">
+            <div class="col-md-6">
+                <label class="form-label">Complaint Title</label>
+                <input class="form-control" name="title" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Department</label>
+                <select class="form-select" name="department_id" required>
+                    {% for department in departments %}
+                        <option value="{{ department.id }}">{{ department.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" name="description" rows="5" required></textarea>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Location</label>
+                <input class="form-control" name="location" id="locationInput" placeholder="123 Main St, City">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Latitude</label>
+                <input class="form-control" name="latitude" id="latitudeInput" type="number" step="any">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Longitude</label>
+                <input class="form-control" name="longitude" id="longitudeInput" type="number" step="any">
+            </div>
+            <div class="col-12">
+                <button type="button" class="btn btn-outline-primary" id="useLocationBtn">Use My Current Location</button>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Priority</label>
+                <select class="form-select" name="priority" required>
+                    <option>Low</option>
+                    <option selected>Medium</option>
+                    <option>High</option>
+                    <option>Critical</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Upload Photo</label>
+                <input class="form-control" type="file" name="image" accept="image/*">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Upload Document</label>
+                <input class="form-control" type="file" name="document" accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+            </div>
+            <div class="col-md-12 form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="anonymous" id="anonymousSwitch">
+                <label class="form-check-label" for="anonymousSwitch">Submit anonymously</label>
+            </div>
+            <div class="col-12 text-end">
+                <button type="submit" class="btn btn-primary">Submit Complaint</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+    const useLocationBtn = document.getElementById('useLocationBtn');
+    const locationInput = document.getElementById('locationInput');
+    const latitudeInput = document.getElementById('latitudeInput');
+    const longitudeInput = document.getElementById('longitudeInput');
+
+    if (useLocationBtn) {
+        useLocationBtn.addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by your browser.');
+                return;
+            }
+            useLocationBtn.disabled = true;
+            useLocationBtn.textContent = 'Locating...';
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    latitudeInput.value = latitude.toFixed(6);
+                    longitudeInput.value = longitude.toFixed(6);
+                    locationInput.value = `Latitude: ${latitude.toFixed(6)}, Longitude: ${longitude.toFixed(6)}`;
+                    useLocationBtn.textContent = 'Location Captured';
+                },
+                (error) => {
+                    console.error(error);
+                    alert('Unable to get your location. Please allow location access or enter it manually.');
+                    useLocationBtn.disabled = false;
+                    useLocationBtn.textContent = 'Use My Current Location';
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+            );
+        });
+    }
+</script>
+{% endblock %}

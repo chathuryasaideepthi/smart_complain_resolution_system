@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Department Dashboard | Smart Complaint{% endblock %}
+{% block page_title %}Department Head Dashboard{% endblock %}
+{% block page_description %}Assign complaints and monitor team performance.{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm border-0 rounded-4 p-4 mb-4">
+            <h5>Officer Workloads</h5>
+            <div class="table-responsive">
+                <table class="table table-hover" id="workloadTable">
+                    <thead>
+                        <tr>
+                            <th>Officer</th>
+                            <th>Active Assignments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in officer_workloads %}
+                            <tr>
+                                <td>{{ item.officer.name }}</td>
+                                <td>{{ item.active }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card shadow-sm border-0 rounded-4 p-4">
+            <h5>Department Complaints</h5>
+            <div class="table-responsive">
+                <table class="table table-hover" id="departmentTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Citizen</th>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Assigned To</th>
+                            <th>Location</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for complaint in department_complaints %}
+                            <tr>
+                                <td>{{ complaint.id }}</td>
+                                <td>{{ complaint.citizen.name if not complaint.is_anonymous else 'Anonymous' }}</td>
+                                <td>{{ complaint.title }}</td>
+                                <td>{{ complaint.status }}</td>
+                                <td>{{ complaint.officer.name if complaint.officer else 'Unassigned' }}</td>
+                                <td>{{ complaint.location or 'No location' }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#assignModal{{ complaint.id }}">Assign</button>
+                                    <form method="POST" action="{{ url_for('department.assign_nearest_officer', complaint_id=complaint.id) }}" class="d-inline-block">
+                                        <button type="submit" class="btn btn-sm btn-outline-success">Auto Assign</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for complaint in department_complaints %}
+    <div class="modal fade" id="assignModal{{ complaint.id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content rounded-4">
+                <form method="POST" action="{{ url_for('department.assign_officer', complaint_id=complaint.id) }}">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Assign Officer</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Select Officer</label>
+                            <select class="form-select" name="officer_id" required>
+                                {% for officer in officers %}
+                                    <option value="{{ officer.id }}">{{ officer.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Assign</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+{% endblock %}
+{% block extra_scripts %}
+<script>
+    new DataTable('#workloadTable');
+    new DataTable('#departmentTable');
+</script>
+{% endblock %}
